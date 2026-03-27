@@ -74,7 +74,7 @@ Download whisper model from [ggml-large-v3-turbo.bin.zip](https://github.com/yya
 1. Unzip it. You can see a file named `ggml-large-v3-turbo.bin`.
 2. Open the Terminal app. If your downloads are in the folder `~/Downloads`, you should run the command: `cd ~/Downloads`
 3. Run command in the terminal: `mkdir -p ~/Library/Application\ Support/AutoSRT/Models/ggml-large-v3-turbo`
-4. Run command in the terminal: `cp -rf ggml-large-v3-turbo.bin ~/Library/Application\ Support/LLMSurf/Models/ggml-large-v3-turbo`
+4. Run command in the terminal: `cp -rf ggml-large-v3-turbo.bin ~/Library/Application\ Support/AutoSRT/Models/ggml-large-v3-turbo`
 
 Of course, you can operate in GUI.
 

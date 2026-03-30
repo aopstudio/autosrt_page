@@ -98,6 +98,6 @@ We found if the LLM model has more parameters, more accuracy. The gemma3:4B is o
 
 - [Slot Finder: Find your ideal time to study or meeting](https://www.51zhi.com/)
 - [AIClips: Find your interesting clips from video with AI-powered intelligence](https://yyaadet.github.io/aiclips/)
-- [LLMSurf - AI Agent For macOS](https://github.com/yyaadet/llmsurf) 
+- [So - AI Search Agent For macOS](https://github.com/yyaadet/So) 
 
-![LLMSurf](https://raw.githubusercontent.com/yyaadet/llmsurf/main/images/logo.png)
+![So](https://raw.githubusercontent.com/yyaadet/So/main/images/logo.png)

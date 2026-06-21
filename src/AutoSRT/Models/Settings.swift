@@ -29,7 +29,6 @@ public class Settings: ObservableObject {
         public static let seperators: String = ",.!?;，。？！、；"
 
         public var minSimilarity: Double = 0.5
-        public var useEmbedding: Bool = true
         public var contextLength: Int = 100
 
         public enum Alignment: String, Codable, CaseIterable {
@@ -148,7 +147,7 @@ public class Settings: ObservableObject {
         public var numCtx = 4096 * 8
         public var temperature: Double = 0.4
         public var topP: Double = 0.85
-        public var maxChatHistoryCount: Int = 20
+        public var maxChatHistoryCount: Int = 30
         public var timeout: TimeInterval = 600  // request timeout in seconds
 
         // Provider configurations
@@ -196,14 +195,39 @@ public class Settings: ObservableObject {
 
     // MARK: - Whisper Service Settings
     public struct WhisperService: Codable {
-        public static let turboModelUrl: String = """
-            https://github.com/yyaadet/autosrt_page/releases/download/v10.0.0/ggml-large-v3-turbo.bin.zip
-            """
+        public enum WhisperModel: String, Codable, CaseIterable, Identifiable {
+            case base = "base"
+            case small = "small"
+            case medium = "medium"
+            case largeV3Turbo = "large-v3-turbo"
+
+            public var id: String { rawValue }
+
+            var displayName: String {
+                switch self {
+                case .base: return "Base (fastest, ~140MB)"
+                case .small: return "Small (fast, ~460MB)"
+                case .medium: return "Medium (balanced, ~1.4GB)"
+                case .largeV3Turbo: return "Large V3 Turbo (best accuracy, ~1.5GB)"
+                }
+            }
+
+            var fileName: String {
+                "ggml-\(rawValue).bin"
+            }
+
+            var downloadUrl: String {
+                "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/\(fileName)"
+            }
+        }
+
+        public static let defaultModel = WhisperModel.largeV3Turbo
 
         public var temperature: Double = 0
         public var contextLength: Int = 512
         public var maxCJKSegmentLength: Int = 9
         public var maxDefaultSegmentLength: Int = 20
+        public var selectedModel: WhisperModel = .largeV3Turbo
     }
 
     // MARK: - UI Settings
@@ -339,13 +363,15 @@ public class Settings: ObservableObject {
                     {
                         self.whisperService.maxDefaultSegmentLength = maxDefaultSegmentLength
                     }
+                    if let modelStr = section.values["selectedModel"],
+                        let model = WhisperService.WhisperModel(rawValue: modelStr)
+                    {
+                        self.whisperService.selectedModel = model
+                    }
 
                 case "WordService":
                     if let minSimilarity = Double(section.values["minSimilarity"] ?? "") {
                         self.wordService.minSimilarity = minSimilarity
-                    }
-                    if let useEmbedding = Bool(section.values["useEmbedding"] ?? "") {
-                        self.wordService.useEmbedding = useEmbedding
                     }
                     if let contextLength = Int(section.values["contextLength"] ?? "") {
                         self.wordService.contextLength = contextLength
@@ -449,10 +475,10 @@ extension Settings: IniSerializable {
         content += "contextLength=\(whisperService.contextLength)\n"
         content += "maxCJKSegmentLength=\(whisperService.maxCJKSegmentLength)\n"
         content += "maxDefaultSegmentLength=\(whisperService.maxDefaultSegmentLength)\n"
+        content += "selectedModel=\(whisperService.selectedModel.rawValue)\n"
 
         content += "\n[WordService]\n"
         content += "minSimilarity=\(wordService.minSimilarity)\n"
-        content += "useEmbedding=\(wordService.useEmbedding)\n"
         content += "contextLength=\(wordService.contextLength)\n"
         content += "alignment=\(wordService.alignment.rawValue)\n"
 

@@ -89,229 +89,65 @@ struct SubtitleEditView: View {
     }
 
     var body: some View {
-        VStack(spacing: 2) {
-            if viewModel.isProcessing {
-                VStack(spacing: 8) {
-                    ProgressView(viewModel.statusMessage, value: viewModel.progress, total: 1.0)
-                        .progressViewStyle(.linear)
-                        .frame(maxWidth: .infinity)
-                    Text(viewModel.statusMessage)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
+            // Top progress/error bar
+            if viewModel.isProcessing || viewModel.errorMessage != nil {
+                VStack(spacing: 6) {
+                    if viewModel.isProcessing {
+                        ProgressView(viewModel.statusMessage, value: viewModel.progress, total: 1.0)
+                            .progressViewStyle(.linear)
+                            .frame(maxWidth: .infinity)
+                    }
+                    if let errorMsg = viewModel.errorMessage {
+                        Text(errorMsg)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
                 }
-                .padding()
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color(.windowBackgroundColor).opacity(0.95))
+                .overlay(
+                    Divider()
+                        .frame(maxWidth: .infinity),
+                    alignment: .bottom
+                )
             }
 
-            if let errorMsg = viewModel.errorMessage {
-                Text(errorMsg)
-                    .foregroundColor(.red)
-                    .padding()
-            }
-
-            HStack(spacing: 8) {
+            HStack(spacing: 0) {
+                // Left panel: Video player
                 if let player = viewModel.player {
                     VideoPlayerContainer(player: player, fontSize: viewModel.selectedFontSize)
-                        .frame(
-                            minWidth: Settings.shared.ui.videoPlayerMinWidth,
-                            minHeight: Settings.shared.ui.videoPlayerMinHeight)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 } else {
-                    Color.black
-                        .frame(
-                            minWidth: Settings.shared.ui.videoPlayerMinWidth,
-                            minHeight: Settings.shared.ui.videoPlayerMinHeight)
+                    Color(.controlBackgroundColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            VStack(spacing: 8) {
+                                Image(systemName: "film")
+                                    .font(.largeTitle)
+                                    .foregroundColor(.secondary)
+                                Text("No video loaded")
+                                    .foregroundColor(.secondary)
+                            }
+                        )
                 }
 
-                VStack(spacing: 2) {
-                    HStack {
-                        Text(
-                            "Subtitles: \(filteredSubtitles.count)/\(viewModel.editingSubtitles.count)"
-                        )
-                        .font(.headline)
+                // Right panel: Subtitle editing
+                VStack(spacing: 0) {
+                    // Search & Replace bar
+                    searchReplaceBar
 
-                        VStack(spacing: 5) {
-                            TextField("Search subtitles...", text: $searchText)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(width: 300)
-                                .searchable(text: $searchText)
-                                .onChange(of: searchText) { _ in
-                                    Task {
-                                        await performSearch()
-                                    }
-                                }
+                    Divider()
 
-                            if !searchText.isEmpty {
-                                HStack {
-                                    TextField("Replace with...", text: $replaceText)
-                                        .textFieldStyle(.roundedBorder)
-                                        .frame(width: 300)
+                    // Subtitle list
+                    subtitleList
 
-                                    Button(action: {
-                                        if !searchText.isEmpty {
-                                            showReplaceAlert = true
-                                        }
-                                    }) {
-                                        Image(systemName: "arrow.triangle.2.circlepath")
-                                    }
-                                    .help("Replace in filtered subtitles")
-                                    .disabled(searchText.isEmpty || filteredSubtitles.isEmpty)
-                                }
-
-                            }
-                        }
-                    }
-                    .padding(.top, 8)
-                    .alert("Replace Confirmation", isPresented: $showReplaceAlert) {
-                        Button("Cancel", role: .cancel) {}
-                        Button("Replace All", role: .destructive) {
-                            Task {
-                                await replaceInSubtitles()
-                            }
-                        }
-                    } message: {
-                        Text(
-                            "Replace '\(searchText)' with '\(replaceText)' in \(filteredSubtitles.count) subtitles?"
-                        )
-                    }
-
-                    ScrollView {
-                        ScrollViewReader { proxy in
-                            LazyVStack(spacing: 8) {
-                                ForEach(Array(filteredSubtitles.enumerated()), id: \.element.id) {
-                                    index, subtitle in
-                                    SubtitleItemView(
-                                        viewModel: viewModel,
-                                        subtitleIndex: index,
-                                        isSelected: selectedSubtitleIndex == index,
-                                        editCount: $editCount,
-                                        editedSubtitles: viewModel.editingSubtitles
-                                    )
-                                    .onTapGesture {
-                                        selectedSubtitleIndex = index
-                                    }
-                                    .disabled(viewModel.isProcessing)
-                                }
-                            }
-                            .onAppear {
-                                scrollProxy = proxy
-                            }
-                        }
-                    }
-                    .frame(maxHeight: .infinity)
-
-                    HStack {
-                        Button("Cancel") {
-                            onDismiss()
-                        }
-                        .disabled(viewModel.isProcessing)
-
-                        Spacer()
-
-                        Button(action: {
-                            navigateToPreviousEditedSubtitle()
-                        }) {
-                            Image(systemName: "chevron.up")
-                        }
-                        .disabled(viewModel.isProcessing || !hasPreviousEditedSubtitle())
-                        .help("Go to previous edited subtitle")
-
-                        Button(action: {
-                            navigateToNextEditedSubtitle()
-                        }) {
-                            Image(systemName: "chevron.down")
-                        }
-                        .disabled(viewModel.isProcessing || !hasNextEditedSubtitle())
-                        .help("Go to next edited subtitle")
-
-                        Spacer()
-
-                        Text("Edited: \(checkEditedSubtitleCount())")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .padding(.trailing, 8)
-
-                        Button("Save") {
-                            viewModel.updateSubtitles()
-                            Task {
-                                analytics.trackEvent(
-                                    .subtitleEditViewSaved,
-                                    parameters: [
-                                        "subtitle_count": viewModel.editingSubtitles.count,
-                                        "edited_count": checkEditedSubtitleCount(),
-                                    ])
-                            }
-                            dismiss()
-                        }
-                        .disabled(viewModel.isProcessing || checkEditedSubtitleCount() == 0)
-                        .buttonStyle(.borderedProminent)
-                    }
-                    .padding()
-
-                    HStack {
-                        //display statusMessage here
-                        Menu {
-                            Button("Align subtitles from Document") {
-                                let panel = NSOpenPanel()
-                                panel.allowsMultipleSelection = false
-                                panel.canChooseDirectories = false
-                                panel.allowedContentTypes = [
-                                    UTType(filenameExtension: "docx")!,
-                                    UTType.plainText,
-                                    UTType.rtf,
-                                    UTType(filenameExtension: "odt")!,
-                                    UTType(filenameExtension: "srt")!,
-                                ]
-                                panel.begin { response in
-                                    if response == .OK, let url = panel.url {
-                                        Task {
-                                            analytics.trackEvent(
-                                                .subtitleDocumentUploaded,
-                                                parameters: [
-                                                    "file_name": url.lastPathComponent,
-                                                    "file_size":
-                                                        (try? FileManager.default.attributesOfItem(
-                                                            atPath: url.path)[.size]) as? Int64
-                                                        ?? 0,
-                                                ])
-
-                                            do {
-                                                let processedSubtitles =
-                                                    try await viewModel.uploadDocument(
-                                                        url,
-                                                        currentSubtitles: viewModel.editingSubtitles
-                                                    )
-
-                                                await MainActor.run {
-                                                    viewModel.editingSubtitles = processedSubtitles
-                                                    filteredSubtitles = processedSubtitles
-                                                    selectedSubtitleIndex =
-                                                        processedSubtitles
-                                                        .firstIndex {
-                                                            $0.isSourceEdited
-                                                                || $0.isTranslatedEdited
-                                                        }
-                                                }
-                                            } catch {
-                                                LoggerService.shared.log(
-                                                    "Error uploading document: \(error.localizedDescription)",
-                                                    level: .error
-                                                )
-                                                analytics.trackError(
-                                                    error,
-                                                    context: "subtitle_document_upload")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                        } label: {
-                            Image(systemName: "doc.badge.plus")
-                        }
-                    }
+                    // Bottom toolbar
+                    bottomToolbar
                 }
-
             }
+            .padding(12)
             .frame(
                 minWidth: Settings.shared.ui.editorMinWidth,
                 minHeight: Settings.shared.ui.editorMinHeight
@@ -346,8 +182,216 @@ struct SubtitleEditView: View {
         .withKeyboardShortcuts()
     }
 
+    // MARK: - Search & Replace Bar
+
+    private var searchReplaceBar: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Subtitles: \(filteredSubtitles.count)/\(viewModel.editingSubtitles.count)")
+                    .font(.headline)
+
+                Spacer()
+
+                // Document upload
+                Menu {
+                    Button("Align subtitles from Document") {
+                        let panel = NSOpenPanel()
+                        panel.allowsMultipleSelection = false
+                        panel.canChooseDirectories = false
+                        panel.allowedContentTypes = [
+                            UTType(filenameExtension: "docx")!,
+                            UTType.plainText,
+                            UTType.rtf,
+                            UTType(filenameExtension: "odt")!,
+                            UTType(filenameExtension: "srt")!,
+                        ]
+                        panel.begin { response in
+                            if response == .OK, let url = panel.url {
+                                Task {
+                                    analytics.trackEvent(
+                                        .subtitleDocumentUploaded,
+                                        parameters: [
+                                            "file_name": url.lastPathComponent,
+                                            "file_size":
+                                                (try? FileManager.default.attributesOfItem(
+                                                    atPath: url.path)[.size]) as? Int64
+                                                ?? 0,
+                                        ])
+
+                                    do {
+                                        let processedSubtitles =
+                                            try await viewModel.uploadDocument(
+                                                url,
+                                                currentSubtitles: viewModel.editingSubtitles
+                                            )
+
+                                        await MainActor.run {
+                                            viewModel.editingSubtitles = processedSubtitles
+                                            filteredSubtitles = processedSubtitles
+                                            selectedSubtitleIndex =
+                                                processedSubtitles
+                                                .firstIndex {
+                                                    $0.isSourceEdited
+                                                        || $0.isTranslatedEdited
+                                                }
+                                        }
+                                    } catch {
+                                        LoggerService.shared.log(
+                                            "Error uploading document: \(error.localizedDescription)",
+                                            level: .error
+                                        )
+                                        analytics.trackError(
+                                            error,
+                                            context: "subtitle_document_upload")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    Label("Import Document", systemImage: "doc.badge.plus")
+                }
+                .disabled(viewModel.isProcessing)
+            }
+
+            HStack(spacing: 8) {
+                TextField("Search subtitles...", text: $searchText)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(maxWidth: 280)
+                    .onChange(of: searchText) { _ in
+                        Task {
+                            await performSearch()
+                        }
+                    }
+
+                if !searchText.isEmpty {
+                    TextField("Replace with...", text: $replaceText)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(maxWidth: 200)
+
+                    Button(action: {
+                        if !searchText.isEmpty {
+                            showReplaceAlert = true
+                        }
+                    }) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                    }
+                    .help("Replace in filtered subtitles")
+                    .disabled(searchText.isEmpty || filteredSubtitles.isEmpty)
+                }
+            }
+        }
+        .padding(.horizontal, 4)
+        .padding(.vertical, 8)
+        .alert("Replace Confirmation", isPresented: $showReplaceAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Replace All", role: .destructive) {
+                Task {
+                    await replaceInSubtitles()
+                }
+            }
+        } message: {
+            Text(
+                "Replace '\(searchText)' with '\(replaceText)' in \(filteredSubtitles.count) subtitles?"
+            )
+        }
+    }
+
+    // MARK: - Subtitle List
+
+    private var subtitleList: some View {
+        ScrollView {
+            ScrollViewReader { proxy in
+                LazyVStack(spacing: 6) {
+                    ForEach(Array(filteredSubtitles.enumerated()), id: \.element.id) {
+                        index, subtitle in
+                        SubtitleItemView(
+                            viewModel: viewModel,
+                            subtitleIndex: index,
+                            isSelected: selectedSubtitleIndex == index,
+                            editCount: $editCount,
+                            editedSubtitles: viewModel.editingSubtitles
+                        )
+                        .onTapGesture {
+                            selectedSubtitleIndex = index
+                        }
+                        .disabled(viewModel.isProcessing)
+                    }
+                }
+                .onAppear {
+                    scrollProxy = proxy
+                }
+            }
+        }
+        .frame(maxHeight: .infinity)
+    }
+
+    // MARK: - Bottom Toolbar
+
+    private var bottomToolbar: some View {
+        HStack(spacing: 12) {
+            Button("Cancel") {
+                onDismiss()
+            }
+            .disabled(viewModel.isProcessing)
+
+            Spacer()
+
+            Button(action: {
+                navigateToPreviousEditedSubtitle()
+            }) {
+                Image(systemName: "chevron.up")
+            }
+            .buttonStyle(.borderless)
+            .disabled(viewModel.isProcessing || !hasPreviousEditedSubtitle())
+            .help("Go to previous edited subtitle")
+
+            Button(action: {
+                navigateToNextEditedSubtitle()
+            }) {
+                Image(systemName: "chevron.down")
+            }
+            .buttonStyle(.borderless)
+            .disabled(viewModel.isProcessing || !hasNextEditedSubtitle())
+            .help("Go to next edited subtitle")
+
+            Text("Edited: \(checkEditedSubtitleCount())")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color(.controlBackgroundColor))
+                .cornerRadius(6)
+
+            Spacer()
+
+            Button("Save") {
+                viewModel.updateSubtitles()
+                Task {
+                    analytics.trackEvent(
+                        .subtitleEditViewSaved,
+                        parameters: [
+                            "subtitle_count": viewModel.editingSubtitles.count,
+                            "edited_count": checkEditedSubtitleCount(),
+                        ])
+                }
+                dismiss()
+            }
+            .disabled(viewModel.isProcessing || checkEditedSubtitleCount() == 0)
+            .buttonStyle(.borderedProminent)
+        }
+        .padding(.horizontal, 4)
+        .padding(.vertical, 8)
+        .overlay(
+            Divider()
+                .frame(maxWidth: .infinity),
+            alignment: .top
+        )
+    }
+
+    // MARK: - Helpers
+
     private func performSearch() async {
-        // send analytics event
         analytics.trackEvent(
             .subtitleSearchStarted,
             parameters: [
@@ -355,16 +399,12 @@ struct SubtitleEditView: View {
                 "filtered_subtitles": filteredSubtitles.count,
             ])
 
-        // Cancel any existing search task
         searchTask?.cancel()
 
-        // Add a small delay for debouncing
         try? await Task.sleep(nanoseconds: 300_1000)
 
-        // Check if task was cancelled during the delay
         if Task.isCancelled { return }
 
-        // Perform the search in background
         if searchText.isEmpty {
             await MainActor.run {
                 filteredSubtitles = viewModel.editingSubtitles
@@ -377,7 +417,6 @@ struct SubtitleEditView: View {
                 || subtitle.translatedText.localizedCaseInsensitiveContains(searchText)
         }
 
-        // Update UI on main thread
         await MainActor.run {
             filteredSubtitles = filtered
             analytics.trackEvent(
@@ -438,13 +477,8 @@ struct SubtitleEditView: View {
             }
         }
 
-        // Update filtered subtitles
         await performSearch()
-
-        // Update edit count
         editCount = checkEditedSubtitleCount()
-
-        // Show result
         replaceCount = replacedCount
 
         analytics.trackEvent(
@@ -520,40 +554,66 @@ struct SubtitleItemView: View {
     #endif
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
+        VStack(alignment: .leading, spacing: 6) {
+            // Header row: number, play button, timestamps
+            HStack(spacing: 6) {
+                // Number badge
                 Text("#\(subtitle.index + 1)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .frame(width: 22, height: 16)
+                    .background(Color.accentColor)
+                    .cornerRadius(4)
 
+                // Play button
                 Button(action: {
                     viewModel.player?.seek(
                         to: CMTime(seconds: subtitle.startTime, preferredTimescale: 1000))
                 }) {
-                    Image(systemName: "play.circle")
+                    Image(systemName: "play.fill")
+                        .font(.caption)
                 }
                 .buttonStyle(.borderless)
+                .disabled(viewModel.isProcessing)
 
                 Spacer()
 
+                // Timestamps
                 Text(
-                    "\(formatTimeInterval(subtitle.startTime)) → \(formatTimeInterval(subtitle.endTime))"
+                    "\(formatTime(subtitle.startTime)) → \(formatTime(subtitle.endTime))"
                 )
-                .font(.caption)
+                .font(.caption2)
                 .foregroundColor(.secondary)
+                .monospacedDigit()
+
+                // Edit indicator
+                if subtitle.isSourceEdited || subtitle.isTranslatedEdited {
+                    Image(systemName: "circle.fill")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                }
             }
 
+            // Original source reference
             if subtitle.index >= 0,
                 let originalSubtitle = viewModel.subtitles.indices.contains(subtitle.index)
                     ? viewModel.subtitles[subtitle.index] : nil,
                 !originalSubtitle.sourceText.isEmpty
             {
                 Text(originalSubtitle.sourceText)
-                    .frame(minHeight: 30)
-                    .foregroundColor(.secondary)
+                    .font(.caption)
+                    .foregroundColor(.secondary.opacity(0.7))
+                    .lineLimit(2)
                     .textSelection(.enabled)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.controlBackgroundColor))
+                    .cornerRadius(6)
             }
 
+            // Source text editor
             TextEditor(
                 text: Binding(
                     get: { self.subtitle.sourceText },
@@ -571,21 +631,43 @@ struct SubtitleItemView: View {
                     viewModel.persistState()
                 }
             }
-            .textFieldStyle(.automatic)
-            .frame(minHeight: 30)
-            .foregroundColor(subtitle.isSourceEdited ? .red : .primary)
+            .textFieldStyle(.plain)
+            .font(.body)
+            .lineLimit(6)
+            .foregroundColor(subtitle.isSourceEdited ? .accentColor : .primary)
+            .padding(8)
+            .background(
+                Rectangle()
+                    .fill(Color(.controlBackgroundColor).opacity(0.5))
+                    .cornerRadius(6)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(
+                        subtitle.isSourceEdited ? Color.accentColor.opacity(0.3) : Color.clear,
+                        lineWidth: 1
+                    )
+            )
 
+            // Original translation reference
             if subtitle.index >= 0,
                 let originalSubtitle = viewModel.subtitles.indices.contains(subtitle.index)
                     ? viewModel.subtitles[subtitle.index] : nil,
                 !originalSubtitle.translatedText.isEmpty
             {
                 Text(originalSubtitle.translatedText)
-                    .frame(minHeight: 30)
-                    .foregroundColor(.secondary)
+                    .font(.caption)
+                    .foregroundColor(.secondary.opacity(0.7))
+                    .lineLimit(2)
                     .textSelection(.enabled)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.controlBackgroundColor))
+                    .cornerRadius(6)
             }
 
+            // Translation text editor
             TextEditor(
                 text: Binding(
                     get: { self.subtitle.translatedText },
@@ -603,16 +685,40 @@ struct SubtitleItemView: View {
                     viewModel.persistState()
                 }
             }
-            .textFieldStyle(.automatic)
-            .frame(minHeight: 30)
-            .foregroundColor(subtitle.isTranslatedEdited ? .red : .primary)
+            .textFieldStyle(.plain)
+            .font(.body)
+            .lineLimit(6)
+            .foregroundColor(subtitle.isTranslatedEdited ? .accentColor : .primary)
+            .padding(8)
+            .background(
+                Rectangle()
+                    .fill(Color(.controlBackgroundColor).opacity(0.5))
+                    .cornerRadius(6)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(
+                        subtitle.isTranslatedEdited ? Color.accentColor.opacity(0.3) : Color.clear,
+                        lineWidth: 1
+                    )
+            )
         }
-        .padding(8)
-        .background(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
-        .cornerRadius(8)
+        .padding(10)
+        .background(isSelected ? Color.accentColor.opacity(0.08) : Color(.windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(
+                    isSelected
+                        ? Color.accentColor.opacity(0.5)
+                        : Color.secondary.opacity(0.15),
+                    lineWidth: isSelected ? 1.5 : 0.5
+                )
+        )
+        .shadow(color: .black.opacity(0.04), radius: 2, y: 1)
     }
 
-    private func formatTimeInterval(_ time: TimeInterval) -> String {
+    private func formatTime(_ time: TimeInterval) -> String {
         let minutes = Int(time) / 60
         let seconds = Int(time) % 60
         let milliseconds = Int((time.truncatingRemainder(dividingBy: 1)) * 1000)

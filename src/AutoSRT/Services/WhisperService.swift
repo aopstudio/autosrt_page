@@ -1,7 +1,6 @@
 import AVFoundation
 import Foundation
 import ffmpegkit
-import whisper
 
 // Global variable to store the current progress callback
 private var currentProgressCallback: ((String, Double) -> Void)? = nil
@@ -40,20 +39,29 @@ class WhisperService {
         whisperPath = Bundle.main.path(forResource: "whisper", ofType: "") ?? ""
     }
 
+    /// Get the current model path (empty if not yet initialized/downloaded)
+    public var currentModelPath: String {
+        modelPath
+    }
+
     /// Initialize the model, downloading it if it doesn't exist
     public func initializeModel(
         progressHandler: ((@Sendable (DownloadService.DownloadProgress) -> Void))? = nil
     ) async throws {
-        let defaultModelPath =
-            Bundle.main.path(forResource: "ggml-large-v3-turbo", ofType: "bin") ?? ""
-        if !defaultModelPath.isEmpty {
-            modelPath = defaultModelPath
-            logger.log("Whispers model found in bundle.", level: .info)
+        let selectedModel = Settings.shared.whisperService.selectedModel
+        let modelName = selectedModel.rawValue
+        let fileName = selectedModel.fileName
+
+        // Check bundle for model
+        let bundledModelPath = Bundle.main.path(forResource: modelName, ofType: "bin") ?? ""
+        if !bundledModelPath.isEmpty {
+            modelPath = bundledModelPath
+            logger.log("Whisper model (\(selectedModel.displayName)) found in bundle.", level: .info)
             return
         }
 
         // Model doesn't exist, download it
-        logger.log("Whipser model not found in bundle, downloading...", level: .info)
+        logger.log("Whisper model (\(selectedModel.displayName)) not found, downloading...", level: .info)
 
         // Get application support directory
         let appSupportDir = try FileManager.default.url(
@@ -69,33 +77,60 @@ class WhisperService {
             at: modelsDir, withIntermediateDirectories: true, attributes: nil)
 
         // Check if model already exists in application support directory
-        let modelPathAtAppSupportDir: URL = modelsDir.appendingPathComponent(
-            "ggml-large-v3-turbo/ggml-large-v3-turbo.bin", isDirectory: false)
+        // Also check for a temp file from a previous failed download
+        let modelPathAtAppSupportDir = modelsDir.appendingPathComponent(fileName, isDirectory: false)
+        let tempModelPath = modelPathAtAppSupportDir.path + ".tmp"
         if FileManager.default.fileExists(atPath: modelPathAtAppSupportDir.path) {
             modelPath = modelPathAtAppSupportDir.path
-            logger.log("Successfully loaded whisper turbo model from application support directory")
+            logger.log("Successfully loaded whisper model (\(selectedModel.displayName)) from application support directory")
             return
+        } else if FileManager.default.fileExists(atPath: tempModelPath) {
+            // A temp file from a previous failed download exists, we'll resume it
+            logger.log("Found leftover temp file for model, will resume download")
         }
 
-        // Download the model
-        guard let modelURL = URL(string: Settings.WhisperService.turboModelUrl) else {
-            throw EmbeddingError.modelNotFound
+        // Download with reconnection support
+        guard let modelURL = URL(string: selectedModel.downloadUrl) else {
+            throw WhisperServiceError.modelNotFound(selectedModel.downloadUrl)
         }
 
-        // Download the model
-        let downloadedURL = try await DownloadService.shared.downloadModel(
-            from: modelURL,
-            modelName: "ggml-large-v3-turbo",
-            destinationDirectory: modelsDir
-        ) { @Sendable progress in
-            // self.logger.log("Downloading SentenceBERT model: \(Int(progress.progress * 100))%", level: .info)
-            progressHandler?(progress)
-        }
+        let maxRetries = 10
+        let baseDelay: TimeInterval = 2
 
-        modelPath =
-            downloadedURL.appendingPathComponent("ggml-large-v3-turbo.bin", isDirectory: false)
-            .path
-        logger.log("Successfully downloaded model at \(modelPath)")
+        for attempt in 0..<maxRetries {
+            do {
+                let downloadedURL = try await DownloadService.shared.downloadModel(
+                    from: modelURL,
+                    modelName: "ggml-\(modelName)",
+                    destinationDirectory: modelsDir
+                ) { @Sendable progress in
+                    progressHandler?(progress)
+                }
+                modelPath = downloadedURL.path
+                logger.log("Successfully downloaded model (\(selectedModel.displayName)) at \(modelPath)")
+                return
+            } catch {
+                let isLastAttempt = attempt == maxRetries - 1
+                if isLastAttempt {
+                    logger.log("Download failed after \(maxRetries) attempts: \(error.localizedDescription)", level: .error)
+                    throw error
+                }
+
+                let delay = baseDelay * pow(2, Double(attempt))
+                logger.log("Download failed (attempt \(attempt + 1)/\(maxRetries)), retrying in \(Int(delay))s...")
+                progressHandler?(DownloadService.DownloadProgress(
+                    modelName: modelName,
+                    bytesDownloaded: 0,
+                    totalBytes: 0,
+                    progress: 0,
+                    status: .downloading,
+                    downloadSpeed: 0,
+                    estimatedTimeRemaining: nil
+                ))
+
+                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            }
+        }
     }
 
     private func transcribeAudio(
@@ -231,119 +266,6 @@ class WhisperService {
         try FileManager.default.removeItem(at: outputSrtPath)
 
         return subtitles
-    }
-
-    private func transcribeAudioWithC(
-        audioFile: URL, language: Language,
-        progressCallback: @escaping (String, Double) -> Void
-    ) async throws -> [Subtitle] {
-
-        var context: OpaquePointer?
-
-        // Initialize whisper context with CoreML model
-        // Only initialize context if it hasn't been initialized yet
-        if context == nil {
-            let params = whisper_context_default_params()
-            context = whisper_init_from_file_with_params(modelPath, params)
-        }
-
-        if context == nil {
-            logger.log("Couldn't load model at \(modelPath)", level: .error)
-            throw WhisperServiceError.contextCreationFailed(modelPath)
-        }
-
-        let state = whisper_init_state(context)
-
-        // Load audio samples as Float32 mono 16kHz
-        let samples = try loadAudioSamples(from: audioFile)
-
-        // Get audio duration in ms
-        let audioDuration = Double(samples.count) / 16000.0 * 1000.0
-        // Configure Whisper C API parameters and report initial progress
-        var params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY)
-        let maxThreads = max(1, min(8, ProcessInfo.processInfo.processorCount - 2))
-        params.n_threads = Int32(maxThreads)
-
-        if language == .SimplifiedChinese || language == .TraditionalChinese {
-            "zh".withCString { cString in
-                params.language = UnsafePointer(cString)
-            }
-        }
-        params.print_special = false
-        params.print_realtime = false
-        params.print_progress = false
-        params.print_timestamps = false
-        params.temperature = Float(Settings.shared.whisperService.temperature)
-        params.split_on_word = true
-        if language == .Japanese || language == .Korean || language == .SimplifiedChinese
-            || language == .TraditionalChinese
-        {
-            params.max_len = Int32(Settings.shared.whisperService.maxCJKSegmentLength)
-        } else {
-            params.max_len = Int32(Settings.shared.whisperService.maxDefaultSegmentLength)
-        }
-        params.duration_ms = Int32(audioDuration)
-        params.offset_ms = Int32(0)
-        params.tdrz_enable = true
-        params.single_segment = false
-        params.audio_ctx = 1500
-        params.token_timestamps = false
-        params.translate = false
-        params.n_max_text_ctx = Int32(Settings.shared.whisperService.contextLength)
-
-        // Set the global progress callback
-        currentProgressCallback = progressCallback
-
-        // Use the global C-compatible function as the callback
-        params.progress_callback = whisperProgressCallback
-        params.progress_callback_user_data = nil
-
-        progressCallback("Loaded audio samples, starting transcription...", 0.1)
-        logger.log("Starting whisper transcription via C API with language: \(language)")
-
-        return try samples.withUnsafeBufferPointer { buffer in
-            guard let baseAddress = buffer.baseAddress else {
-                whisper_free_state(state)
-                whisper_free(context)
-                throw WhisperServiceError.transcriptionFailed("Failed to get audio buffer address")
-            }
-
-            let result = whisper_full_with_state(
-                context!, state, params, baseAddress, Int32(samples.count))
-            guard result == 0 else {
-                whisper_free_state(state)
-                whisper_free(context)
-                throw WhisperServiceError.transcriptionFailed(
-                    "whisper_full failed with code \(result)")
-            }
-
-            // Build subtitles from segments
-            let nSegments = whisper_full_n_segments_from_state(state)
-            var subtitles: [Subtitle] = []
-            for i in 0..<nSegments {
-                let t0 = whisper_full_get_segment_t0_from_state(state, i)
-                // convert t0 to start time in TimeInterval
-                let startTime = TimeInterval(t0) / 1000.0
-                let t1 = whisper_full_get_segment_t1_from_state(state, i)
-                // convert t1 to end time in TimeInterval
-                let endTime = TimeInterval(t1) / 1000.0
-                guard let cstr = whisper_full_get_segment_text_from_state(state, i) else {
-                    continue
-                }
-                let text = String(cString: cstr).trimmingCharacters(in: .whitespacesAndNewlines)
-                subtitles.append(
-                    Subtitle(
-                        startTime: startTime, endTime: endTime,
-                        sourceText: text,
-                        translatedText: "", index: Int(i)))
-            }
-
-            whisper_free_state(state)
-            whisper_free(context!)
-
-            progressCallback("Transcription complete!", 1.0)
-            return subtitles
-        }
     }
 
     // Helper: load audio samples from file as Float32 mono 16kHz
@@ -485,68 +407,6 @@ class WhisperService {
         return hours * 3600 + minutes * 60 + seconds + milliseconds / 1000
     }
 
-    public func detectLanguage(audioFile: URL) async throws -> Language {
-        logger.log("Detecting language for audio file: \(audioFile.lastPathComponent)")
-        var context: OpaquePointer?
-
-        // Initialize whisper context with CoreML model
-        // Only initialize context if it hasn't been initialized yet
-        if context == nil {
-            var params = whisper_context_default_params()
-            params.use_gpu = true
-            params.flash_attn = true
-
-            context = whisper_init_from_file_with_params(modelPath, params)
-        }
-
-        if context == nil {
-            logger.log("Couldn't load model at \(modelPath)", level: .error)
-            throw WhisperServiceError.contextCreationFailed(modelPath)
-        }
-
-        // Load audio samples
-        let samples = try loadAudioSamples(from: audioFile)
-
-        // Use whisper_auto_detect_language API
-        return samples.withUnsafeBufferPointer { buffer in
-            guard let baseAddress = buffer.baseAddress else {
-                whisper_free(context!)
-                return .English  // Default to English if we can't get buffer
-            }
-
-            // Setup default params for language detection
-            var params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY)
-            params.print_progress = false
-            params.print_timestamps = false
-            params.print_realtime = false
-            params.print_special = false
-            params.translate = false
-            params.language = nil
-            params.n_threads = 1
-
-            // Process a small segment for language detection
-            let sampleCount = min(Int32(samples.count), 8000 * 30)  // Use at most 30 seconds
-            let result = whisper_full(context!, params, baseAddress, sampleCount)
-
-            if result != 0 {
-                whisper_free(context!)
-                logger.log("Language detection failed with code \(result)", level: .warning)
-                return .English
-            }
-
-            // Get the detected language
-            if let langStr = whisper_lang_str(whisper_full_lang_id(context!)) {
-                let code = String(cString: langStr)
-                let language = Language.fromCode(code)
-                logger.log("Detected language: \(language.displayName) (\(code))")
-                whisper_free(context!)
-                return language
-            }
-
-            return .English
-        }
-    }
-
     public func transcribe(
         audioFile: URL,
         sourceLanguage: Language,
@@ -555,11 +415,11 @@ class WhisperService {
     ) async throws -> [Subtitle] {
         logger.log("Starting transcription process...")
 
-        progressCallback("Detecting language...", 0.1)
-        var realSourceLanguage: Language = sourceLanguage
-        if realSourceLanguage == .None {
-            realSourceLanguage = try await detectLanguage(audioFile: audioFile)
+        guard sourceLanguage != .None else {
+            throw WhisperServiceError.invalidLanguage(
+                "Source language must be specified. Automatic language detection is not available.")
         }
+        let realSourceLanguage = sourceLanguage
 
         progressCallback(
             "Generating subtitles in source language (\(realSourceLanguage.displayName))...", 0.3)

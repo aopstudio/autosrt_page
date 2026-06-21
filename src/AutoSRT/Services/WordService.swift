@@ -29,31 +29,106 @@ class WordService {
     static let shared = WordService()
     private let logger = LoggerService.shared
     private let translationService = TranslationService.shared
-    private let embeddingService = EmbeddingService.shared
     private let cacheLock = NSLock()
-    private var sentenceEmbeddings = [String: [Float]]()
+    private var similarityCache = [String: Double]()
 
     private init() {
     }
 
-    private func getEmbedding(text: String) async throws -> [Float] {
-        // Thread-safe cache access
+    private func getLLMService() async -> any LLMService {
+        await LLMServiceFactory.createService()
+    }
+
+    private func cacheKey(for text1: String, _ text2: String) -> String {
+        let sorted = [text1, text2].sorted()
+        return sorted.joined(separator: "|||")
+    }
+
+    public func getSimilarityScore(text1: String, text2: String, language: Language) async throws -> Double {
+        let key = cacheKey(for: text1, text2)
         cacheLock.lock()
-        if let cached = sentenceEmbeddings[text] {
+        if let cached = similarityCache[key] {
             cacheLock.unlock()
             return cached
         }
         cacheLock.unlock()
 
-        // Get new embedding
-        let embedding = try await embeddingService.getEmbedding(for: text)
+        // Fast heuristic scoring first
+        let heuristicScore = heuristicSimilarity(text1, text2, language: language)
 
-        // Thread-safe cache update
+        // If heuristic is very confident, use it directly
+        if heuristicScore > 0.8 || heuristicScore < 0.2 {
+            cacheLock.lock()
+            similarityCache[key] = heuristicScore
+            cacheLock.unlock()
+            return heuristicScore
+        }
+
+        // Borderline case — ask LLM to refine
+        let llmScore = await getSimilarityScoreViaLLM(text1: text1, text2: text2)
+
+        let finalScore = llmScore > 0 ? llmScore : heuristicScore
+
         cacheLock.lock()
-        sentenceEmbeddings[text] = embedding
+        similarityCache[key] = finalScore
         cacheLock.unlock()
+        return finalScore
+    }
 
-        return embedding
+    private func heuristicSimilarity(_ text1: String, _ text2: String, language: Language) -> Double {
+        if language == .SimplifiedChinese || language == .TraditionalChinese || language == .Japanese {
+            return characterBasedSimilarity(text1, text2)
+        }
+        return wordBasedSimilarity(text1, text2)
+    }
+
+    private func getSimilarityScoreViaLLM(text1: String, text2: String) async -> Double {
+        let systemPrompt = """
+            You are a text similarity evaluator. Given two texts, compare their semantic similarity and return a score between 0.0 and 1.0.
+            - 1.0 means they are semantically equivalent
+            - 0.5 means they share some meaning but differ significantly
+            - 0.0 means they are completely different
+
+            Respond with ONLY a valid JSON object in this format:
+            ```json
+            {"similarity": 0.0}
+            ```
+            Do not include any other text.
+            """
+        let userPrompt = """
+            Compare the similarity of these two texts:
+
+            Text A: "\(text1)"
+            Text B: "\(text2)"
+
+            Return a similarity score.
+            """
+
+        let systemMessage = ChatMessage(role: .system, content: systemPrompt)
+        let userMessage = ChatMessage(role: .user, content: userPrompt)
+
+        let service = await getLLMService()
+        do {
+            let response = try await service.chat(
+                messages: [systemMessage, userMessage],
+                model: Settings.shared.llmService.chatModel,
+                tools: nil,
+                formatter: nil
+            )
+
+            let jsonBlocks = await MainActor.run {
+                LLMServiceFactory.extractJSONs(from: response.content)
+            }
+            if let jsonBlock = jsonBlocks.first,
+                let score = jsonBlock["similarity"] as? Double
+            {
+                return score
+            }
+        } catch {
+            logger.log("LLM similarity scoring failed: \(error.localizedDescription)", level: .warning)
+        }
+
+        return -1.0  // Signal to fall back
     }
 
     func processDocument(
@@ -69,9 +144,6 @@ class WordService {
             logger.log("Document not found at: \(wordURL.path)")
             throw WordServiceError.fileNotFound
         }
-
-        // load model
-        try await embeddingService.loadModel()
 
         do {
             // Extract text from Word document
@@ -634,11 +706,10 @@ class WordService {
                                 && Settings.WordService.seperators.contains(longSentence.last!))
 
                         if longSentence.count >= query.count && toCheck {
-                            let score = try? await self.similarScore(
-                                query,
-                                longSentence,
-                                language: language,
-                                use_embedding: Settings.shared.wordService.useEmbedding
+                            let score = try? await self.getSimilarityScore(
+                                text1: query,
+                                text2: longSentence,
+                                language: language
                             )
 
                             if let score = score {
@@ -681,60 +752,6 @@ class WordService {
             .sorted { $0.1 > $1.1 }
 
         return candidates.first.map { ($0.0, $0.2) }
-    }
-
-    public func similarScore(
-        _ text1: String, _ text2: String, language: Language,
-        use_embedding: Bool = true
-    ) async throws -> Double {
-        if text1.isEmpty || text1.isEmpty {
-            return 0.0
-        }
-        do {
-            if use_embedding {
-                // Get embeddings for both texts
-                let embedding1 = try await getEmbedding(text: text1)
-                let embedding2 = try await getEmbedding(text: text2)
-
-                // Compute cosine similarity
-                var dotProduct: Float = 0.0
-                var norm1: Float = 0.0
-                var norm2: Float = 0.0
-
-                for i in 0..<min(embedding1.count, embedding2.count) {
-                    dotProduct += embedding1[i] * embedding2[i]
-                    norm1 += embedding1[i] * embedding1[i]
-                    norm2 += embedding2[i] * embedding2[i]
-                }
-
-                let similarity = dotProduct / (sqrt(norm1) * sqrt(norm2))
-                return Double(similarity)
-            } else {
-                // Use character-based similarity for CJK languages
-                if language == .SimplifiedChinese || language == .TraditionalChinese
-                    || language == .Japanese
-                {
-                    return characterBasedSimilarity(text1, text2)
-                }
-
-                // Use word-based similarity for other languages
-                return wordBasedSimilarity(text1, text2)
-            }
-        } catch {
-            logger.log(
-                "Error calculating embedding similarity: \(error.localizedDescription)",
-                level: .error)
-
-            // Fall back to character-based similarity for CJK languages
-            if language == .SimplifiedChinese || language == .TraditionalChinese
-                || language == .Japanese
-            {
-                return characterBasedSimilarity(text1, text2)
-            }
-
-            // Fall back to word-based similarity for other languages
-            return wordBasedSimilarity(text1, text2)
-        }
     }
 
     private func characterBasedSimilarity(_ text1: String, _ text2: String) -> Double {

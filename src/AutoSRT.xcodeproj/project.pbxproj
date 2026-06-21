@@ -31,18 +31,13 @@
 		5680B4060DB7AE42D077C271 /* libavfilter.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8522A3DD24F3C8EF35737FFD /* libavfilter.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		579610AF671822AB4EDD8606 /* libswresample.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 19A00FC7016188063425F004 /* libswresample.xcframework */; };
 		6076FE9BB90073DE272A6DA4 /* libswscale.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9557CA822D042E8F1E8DA716 /* libswscale.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		611D671B0293F9FE855A9651 /* ZIPFoundation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECB69A84D710A24B8AE85BBD /* ZIPFoundation.xcframework */; };
 		63EDC82B2C0EC9083E47CF99 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBB969D89AFBDA11CD1177A /* Metal.framework */; };
 		657E3851B690F518D88789E0 /* libavformat.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAC9DBF08B61A973A9FA6437 /* libavformat.xcframework */; };
 		681F3D8B70D3F020672B186F /* Sequence+Chunked.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3965880216186DD78C1F9E0 /* Sequence+Chunked.swift */; };
 		6E9853A4586805D074DCAFEF /* libswresample.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 19A00FC7016188063425F004 /* libswresample.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6F65160FC2141BDA9AAAE5E5 /* ZIPFoundation.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ECB69A84D710A24B8AE85BBD /* ZIPFoundation.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		74889B2C231803841C5BDD34 /* VideoServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDB17E261043FC2F7B5C0B48 /* VideoServiceTests.swift */; };
-		78989E156A439D7DDF629479 /* CustomUpdaterDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E71557CB9D1F7226E8BE0CB7 /* CustomUpdaterDelegate.swift */; };
-		79CA8E1F341FEA5AD08DFCF3 /* UpdaterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB3575D0B1FE6A0B360AA8D /* UpdaterService.swift */; };
 		7A5D8B74828CD7CC65B20C2A /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E8820E905721C51EBFDB4C51 /* AppKit.framework */; };
-		820AEF2B2DB3832700A71F00 /* whisper.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 820AEF2A2DB3832700A71F00 /* whisper.xcframework */; };
-		820AEF2C2DB3832700A71F00 /* whisper.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 820AEF2A2DB3832700A71F00 /* whisper.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8248E24E2FE7E3A900D95A63 /* DownloadServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8248E24D2FE7E3A900D95A63 /* DownloadServiceTests.swift */; };
 		824AD8F02DB0D89F009D2057 /* Double+clamped.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824AD8EF2DB0D89F009D2057 /* Double+clamped.swift */; };
 		824AD8F22DB0DC5F009D2057 /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824AD8F12DB0DC5F009D2057 /* Language.swift */; };
 		824AD8F42DB25090009D2057 /* DownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824AD8F32DB25090009D2057 /* DownloadService.swift */; };
@@ -53,9 +48,10 @@
 		828C84C72DAFB21700F7F2CB /* libcmark.0.31.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 828C84C62DAFB21700F7F2CB /* libcmark.0.31.1.dylib */; };
 		828C84C82DAFB31400F7F2CB /* libcmark.0.31.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 828C84C62DAFB21700F7F2CB /* libcmark.0.31.1.dylib */; };
 		828C84C92DAFB32400F7F2CB /* libcmark.0.31.1.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 828C84C62DAFB21700F7F2CB /* libcmark.0.31.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		82BCCA952FE8203000434A31 /* ZIPFoundation.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8248E24B2FE7A64D00D95A63 /* ZIPFoundation.xcframework */; };
+		82BCCA962FE8203000434A31 /* ZIPFoundation.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8248E24B2FE7A64D00D95A63 /* ZIPFoundation.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		82EDB1FA2DC99FA700C75885 /* whisper in Resources */ = {isa = PBXBuildFile; fileRef = 82EDB1F92DC99FA700C75885 /* whisper */; };
 		83A1F58B80F849DFB3C55C8B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA78643FC54B901210207B09 /* ContentView.swift */; };
-		8FB2066D1E1010D7A0F05274 /* EmbeddingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71172908EFF6A15345F4255C /* EmbeddingService.swift */; };
 		926C285290BEC41C68863AF2 /* libavcodec.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C752B359051BC185C57C406F /* libavcodec.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		9532B3D3D8699373C472C998 /* Subtitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABE6C0469DCA57DAF0A943C /* Subtitle.swift */; };
 		A25D94BC6EE3C8603C2D1C89 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF683511FF14BCD15916D24 /* SettingsView.swift */; };
@@ -63,7 +59,6 @@
 		AA561E7B917B7F53130F1861 /* LoggerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41344219BFEF0568A4BE4515 /* LoggerService.swift */; };
 		B1690BD8A6F77E8D0F623CA8 /* DeviceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7A146F630622A3CC559338 /* DeviceService.swift */; };
 		B7E30090B19432B1ABE7C587 /* String+Size.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F99B28DA2158CB1DBB73BC /* String+Size.swift */; };
-		B94590D36949F6F736FA7898 /* Sparkle.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD258992175BB8684B40CAFE /* Sparkle.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		BF1802D533BE29CB86BF0BE7 /* String+Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6219B5FCDC53C6FB945716 /* String+Color.swift */; };
 		BF46994791BE703294F2F8AA /* SettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D287C256E6972982BD4956AB /* SettingsService.swift */; };
 		BFE0CCFA2007AAAAC67B9BD7 /* TranslationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392F6B74467C38C5D1A56CA0 /* TranslationServiceTests.swift */; };
@@ -76,7 +71,6 @@
 		D8415C8E8F6BBA37767F8B19 /* VideoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3B82509F464602891A391B /* VideoService.swift */; };
 		DC3AFE8B76FF2E4BCC42C4C0 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E105143165DF779DB8604601 /* IOKit.framework */; };
 		DF6517745C8168B5C8FF12B8 /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FDEE4F276B356D368CFD3C1 /* SummaryView.swift */; };
-		E24C6B436CA570187B5A1E70 /* Sparkle.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD258992175BB8684B40CAFE /* Sparkle.xcframework */; };
 		E5964A795C4EC1B76A35DC51 /* libavdevice.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 945DFB022B2F1D908EE3884D /* libavdevice.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EB430C94A2433577F750EEC3 /* libavutil.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 98C15A92E605A4ED674DC5AE /* libavutil.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F00A577A7A55CC2BF9B0E07B /* SummaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B25929AFA31134C4D645DB7 /* SummaryService.swift */; };
@@ -103,10 +97,8 @@
 			dstSubfolderSpec = 10;
 			files = (
 				828C84C92DAFB32400F7F2CB /* libcmark.0.31.1.dylib in Embed Frameworks */,
-				B94590D36949F6F736FA7898 /* Sparkle.xcframework in Embed Frameworks */,
-				6F65160FC2141BDA9AAAE5E5 /* ZIPFoundation.xcframework in Embed Frameworks */,
+				82BCCA962FE8203000434A31 /* ZIPFoundation.xcframework in Embed Frameworks */,
 				CD65F3448DFA7E0E3697986B /* ffmpegkit.xcframework in Embed Frameworks */,
-				820AEF2C2DB3832700A71F00 /* whisper.xcframework in Embed Frameworks */,
 				926C285290BEC41C68863AF2 /* libavcodec.xcframework in Embed Frameworks */,
 				E5964A795C4EC1B76A35DC51 /* libavdevice.xcframework in Embed Frameworks */,
 				5680B4060DB7AE42D077C271 /* libavfilter.xcframework in Embed Frameworks */,
@@ -145,8 +137,8 @@
 		5F6A52C614CB6D15752D6F83 /* AudioEnhancementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEnhancementService.swift; sourceTree = "<group>"; };
 		66475DE0EB4372A0B7A0D427 /* SummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryViewModel.swift; sourceTree = "<group>"; };
 		697597520F9C46D2B201DB1B /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Resources; path = AutoSRTTests/Resources; sourceTree = SOURCE_ROOT; };
-		71172908EFF6A15345F4255C /* EmbeddingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddingService.swift; sourceTree = "<group>"; };
-		820AEF2A2DB3832700A71F00 /* whisper.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = whisper.xcframework; path = frameworks/whisper.xcframework; sourceTree = "<group>"; };
+		8248E24B2FE7A64D00D95A63 /* ZIPFoundation.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ZIPFoundation.xcframework; path = frameworks/ZIPFoundation.xcframework; sourceTree = "<group>"; };
+		8248E24D2FE7E3A900D95A63 /* DownloadServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadServiceTests.swift; sourceTree = "<group>"; };
 		824AD8EF2DB0D89F009D2057 /* Double+clamped.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Double+clamped.swift"; sourceTree = "<group>"; };
 		824AD8F12DB0DC5F009D2057 /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		824AD8F32DB25090009D2057 /* DownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadService.swift; sourceTree = "<group>"; };
@@ -177,16 +169,12 @@
 		D18C04C3FC0C94A132FE4310 /* WordService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordService.swift; sourceTree = "<group>"; };
 		D287C256E6972982BD4956AB /* SettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsService.swift; sourceTree = "<group>"; };
 		D3965880216186DD78C1F9E0 /* Sequence+Chunked.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sequence+Chunked.swift"; sourceTree = "<group>"; };
-		DBB3575D0B1FE6A0B360AA8D /* UpdaterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterService.swift; sourceTree = "<group>"; };
-		DD258992175BB8684B40CAFE /* Sparkle.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sparkle.xcframework; path = frameworks/Sparkle.xcframework; sourceTree = "<group>"; };
 		DDB17E261043FC2F7B5C0B48 /* VideoServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoServiceTests.swift; sourceTree = "<group>"; };
 		E105143165DF779DB8604601 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		E5B25C988A1212179B527512 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
-		E71557CB9D1F7226E8BE0CB7 /* CustomUpdaterDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomUpdaterDelegate.swift; sourceTree = "<group>"; };
 		E7C03936563D5E43589FBA84 /* ffmpegkit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ffmpegkit.xcframework; path = frameworks/ffmpegkit.xcframework; sourceTree = "<group>"; };
 		E8820E905721C51EBFDB4C51 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		EB0B276C0AAA40C64E327CBD /* WordServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordServiceTests.swift; sourceTree = "<group>"; };
-		ECB69A84D710A24B8AE85BBD /* ZIPFoundation.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ZIPFoundation.xcframework; path = frameworks/ZIPFoundation.xcframework; sourceTree = "<group>"; };
 		F0A0C7F9C4F286BEE1981580 /* SubtitleError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleError.swift; sourceTree = "<group>"; };
 		FABE6C0469DCA57DAF0A943C /* Subtitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subtitle.swift; sourceTree = "<group>"; };
 		FAC9DBF08B61A973A9FA6437 /* libavformat.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavformat.xcframework; path = frameworks/libavformat.xcframework; sourceTree = "<group>"; };
@@ -197,8 +185,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E24C6B436CA570187B5A1E70 /* Sparkle.xcframework in Frameworks */,
-				611D671B0293F9FE855A9651 /* ZIPFoundation.xcframework in Frameworks */,
 				308534BB921AE85909BC8EA9 /* ffmpegkit.xcframework in Frameworks */,
 				46AAFC4F8FEB2ABBEEEDF7C4 /* libavcodec.xcframework in Frameworks */,
 				D341D92C980EFA32AD7A3288 /* libavdevice.xcframework in Frameworks */,
@@ -208,12 +194,12 @@
 				579610AF671822AB4EDD8606 /* libswresample.xcframework in Frameworks */,
 				1265B2EFDBFBA83A5A6DD53A /* libswscale.xcframework in Frameworks */,
 				63EDC82B2C0EC9083E47CF99 /* Metal.framework in Frameworks */,
+				82BCCA952FE8203000434A31 /* ZIPFoundation.xcframework in Frameworks */,
 				828C84C72DAFB21700F7F2CB /* libcmark.0.31.1.dylib in Frameworks */,
 				0FD35C7C6440A4CC7DD5A97A /* MetalKit.framework in Frameworks */,
 				C240D74EB91C1EDE0A6DE863 /* AVFoundation.framework in Frameworks */,
 				7A5D8B74828CD7CC65B20C2A /* AppKit.framework in Frameworks */,
 				DC3AFE8B76FF2E4BCC42C4C0 /* IOKit.framework in Frameworks */,
-				820AEF2B2DB3832700A71F00 /* whisper.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,15 +281,12 @@
 				828C84BC2DAF799200F7F2CB /* OpenAIService.swift */,
 				E5B25C988A1212179B527512 /* AnalyticsService.swift */,
 				5F6A52C614CB6D15752D6F83 /* AudioEnhancementService.swift */,
-				E71557CB9D1F7226E8BE0CB7 /* CustomUpdaterDelegate.swift */,
 				BE7A146F630622A3CC559338 /* DeviceService.swift */,
-				71172908EFF6A15345F4255C /* EmbeddingService.swift */,
 				41344219BFEF0568A4BE4515 /* LoggerService.swift */,
 				2561B6BAA19E390468541D53 /* OllamaService.swift */,
 				D287C256E6972982BD4956AB /* SettingsService.swift */,
 				1B25929AFA31134C4D645DB7 /* SummaryService.swift */,
 				435FBEE0D8E92417912139F9 /* TranslationService.swift */,
-				DBB3575D0B1FE6A0B360AA8D /* UpdaterService.swift */,
 				3C3B82509F464602891A391B /* VideoService.swift */,
 				2C0E8485235B0FFE3B16801C /* WhisperService.swift */,
 				D18C04C3FC0C94A132FE4310 /* WordService.swift */,
@@ -376,6 +359,7 @@
 		D641AE93C0EF4DA43F9E4D65 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				8248E24D2FE7E3A900D95A63 /* DownloadServiceTests.swift */,
 				4A569824D3BC24DD917CEE0F /* SummaryServiceTests.swift */,
 				392F6B74467C38C5D1A56CA0 /* TranslationServiceTests.swift */,
 				DDB17E261043FC2F7B5C0B48 /* VideoServiceTests.swift */,
@@ -387,12 +371,12 @@
 		DDE6626B18CB7F16FBFB0A05 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				820AEF2A2DB3832700A71F00 /* whisper.xcframework */,
 				E8820E905721C51EBFDB4C51 /* AppKit.framework */,
 				460C9D6B7C67F85E79C065D3 /* AVFoundation.framework */,
 				E7C03936563D5E43589FBA84 /* ffmpegkit.xcframework */,
 				E105143165DF779DB8604601 /* IOKit.framework */,
 				C752B359051BC185C57C406F /* libavcodec.xcframework */,
+				8248E24B2FE7A64D00D95A63 /* ZIPFoundation.xcframework */,
 				945DFB022B2F1D908EE3884D /* libavdevice.xcframework */,
 				8522A3DD24F3C8EF35737FFD /* libavfilter.xcframework */,
 				FAC9DBF08B61A973A9FA6437 /* libavformat.xcframework */,
@@ -401,8 +385,6 @@
 				9557CA822D042E8F1E8DA716 /* libswscale.xcframework */,
 				ABBB969D89AFBDA11CD1177A /* Metal.framework */,
 				03D1BBE98A3832B66F467A5D /* MetalKit.framework */,
-				DD258992175BB8684B40CAFE /* Sparkle.xcframework */,
-				ECB69A84D710A24B8AE85BBD /* ZIPFoundation.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -526,6 +508,7 @@
 				BFE0CCFA2007AAAAC67B9BD7 /* TranslationServiceTests.swift in Sources */,
 				74889B2C231803841C5BDD34 /* VideoServiceTests.swift in Sources */,
 				1BFFABFDA7E6C35485E2C7FB /* WordServiceTests.swift in Sources */,
+				8248E24E2FE7E3A900D95A63 /* DownloadServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -537,10 +520,8 @@
 				D68B0F3C9DBCAAD370822092 /* AppDelegate.swift in Sources */,
 				4EBF17C346E0C28694A84802 /* AudioEnhancementService.swift in Sources */,
 				83A1F58B80F849DFB3C55C8B /* ContentView.swift in Sources */,
-				78989E156A439D7DDF629479 /* CustomUpdaterDelegate.swift in Sources */,
 				B1690BD8A6F77E8D0F623CA8 /* DeviceService.swift in Sources */,
 				4F40D92B41184ED6F118DB3A /* DonateView.swift in Sources */,
-				8FB2066D1E1010D7A0F05274 /* EmbeddingService.swift in Sources */,
 				AA561E7B917B7F53130F1861 /* LoggerService.swift in Sources */,
 				824AD8F42DB25090009D2057 /* DownloadService.swift in Sources */,
 				110C4C8F8DEC55A13C2F5109 /* OllamaService.swift in Sources */,
@@ -562,7 +543,6 @@
 				DF6517745C8168B5C8FF12B8 /* SummaryView.swift in Sources */,
 				34FBF53149476B6F21DA029F /* SummaryViewModel.swift in Sources */,
 				210BBD5A600A0FF74457A26A /* TranslationService.swift in Sources */,
-				79CA8E1F341FEA5AD08DFCF3 /* UpdaterService.swift in Sources */,
 				D8415C8E8F6BBA37767F8B19 /* VideoService.swift in Sources */,
 				828C84BD2DAF799200F7F2CB /* LLMService.swift in Sources */,
 				828C84BE2DAF799200F7F2CB /* OpenAIService.swift in Sources */,
@@ -588,6 +568,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -677,7 +658,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.autosrt.AutoSRTTests;
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AutoSRT.app/Contents/MacOS/AutoSRT";
@@ -688,6 +669,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CODE_SIGN_ENTITLEMENTS = "";
@@ -696,7 +678,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10700;
+				CURRENT_PROJECT_VERSION = 10800;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_HARDENED_RUNTIME = NO;
@@ -720,8 +702,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/AutoSRT/Resources",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 10.7.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MARKETING_VERSION = 10.8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = (
@@ -767,7 +749,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.autosrt.AutoSRTTests;
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AutoSRT.app/Contents/MacOS/AutoSRT";
@@ -861,7 +843,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10700;
+				CURRENT_PROJECT_VERSION = 10800;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_HARDENED_RUNTIME = NO;
@@ -884,8 +866,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/AutoSRT/Resources",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 10.7.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MARKETING_VERSION = 10.8.0;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = (
 					"$(inherited)",

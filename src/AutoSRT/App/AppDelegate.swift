@@ -1,10 +1,8 @@
 import Cocoa
-import Sparkle
 import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var window: NSWindow!
-    private let updaterService = UpdaterService.shared
     private let settingsService = SettingsService.shared
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -42,11 +40,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(NSMenuItem.separator())
 
-        // Check for Updates
-        appMenu.addItem(
-            withTitle: "Check for Updates...", action: #selector(checkForUpdates), keyEquivalent: ""
-        )
-        appMenu.addItem(NSMenuItem.separator())
 
         // Preferences
         appMenu.addItem(
@@ -79,10 +72,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             keyEquivalent: "q")
 
         NSApp.mainMenu = mainMenu
-    }
-
-    @objc private func checkForUpdates() {
-        updaterService.checkForUpdates()
     }
 
     @objc private func openPreferences() {

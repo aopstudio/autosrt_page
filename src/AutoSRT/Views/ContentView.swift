@@ -187,6 +187,16 @@ struct ContentView: View {
             }
             .disabled(viewModel.selectedVideoURL == nil || viewModel.isProcessing)
 
+            if viewModel.isProcessing {
+                Button(action: {
+                    viewModel.stopGeneration()
+                }) {
+                    Label("Stop", systemImage: "stop.fill")
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+            }
+
             Button(action: {
                 let panel = NSOpenPanel()
                 panel.allowsMultipleSelection = false

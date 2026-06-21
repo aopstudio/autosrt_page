@@ -14,26 +14,10 @@
             filePath = "AutoSRT/Services/WhisperService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "22"
-            endingLineNumber = "22"
+            startingLineNumber = "21"
+            endingLineNumber = "21"
             landmarkName = "NSObject"
             landmarkType = "21">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "83F5F160-381F-4C50-A7A4-7B5DB7A242C7"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AutoSRT/Services/WhisperService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "329"
-            endingLineNumber = "329"
-            landmarkName = "transcribeAudioWithC(audioFile:language:progressCallback:)"
-            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -110,8 +94,8 @@
             filePath = "AutoSRT/Services/WhisperService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "387"
-            endingLineNumber = "387"
+            startingLineNumber = "273"
+            endingLineNumber = "273"
             landmarkName = "loadAudioSamples(from:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -126,10 +110,10 @@
             filePath = "AutoSRT/Services/WhisperService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "419"
-            endingLineNumber = "419"
-            landmarkName = "WhisperService"
-            landmarkType = "3">
+            startingLineNumber = "305"
+            endingLineNumber = "305"
+            landmarkName = "loadAudioSamples(from:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -142,41 +126,9 @@
             filePath = "AutoSRT/Services/WhisperService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "420"
-            endingLineNumber = "420"
-            landmarkName = "WhisperService"
-            landmarkType = "3">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7ACC853D-760D-4B72-8CE0-C931E6CBD528"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AutoSRT/Services/WhisperService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "283"
-            endingLineNumber = "283"
-            landmarkName = "transcribeAudioWithC(audioFile:language:progressCallback:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7203AEBE-6C58-4540-A9C8-137ED8F86480"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AutoSRT/Services/WhisperService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "322"
-            endingLineNumber = "322"
-            landmarkName = "transcribeAudioWithC(audioFile:language:progressCallback:)"
+            startingLineNumber = "306"
+            endingLineNumber = "306"
+            landmarkName = "loadAudioSamples(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -240,7 +192,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "238"
             endingLineNumber = "238"
-            landmarkName = "parseWordDocument(_:)"
+            landmarkName = "parseTextDocument(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -304,8 +256,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "313"
             endingLineNumber = "313"
-            landmarkName = "WordService"
-            landmarkType = "3">
+            landmarkName = "parseWordDocument(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -560,8 +512,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "312"
             endingLineNumber = "312"
-            landmarkName = "WordService"
-            landmarkType = "3">
+            landmarkName = "parseWordDocument(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -576,7 +528,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "122"
             endingLineNumber = "122"
-            landmarkName = "processDocument(wordURL:subtitles:progressCallback:)"
+            landmarkName = "getSimilarityScoreViaLLM(text1:text2:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -592,8 +544,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "269"
             endingLineNumber = "269"
-            landmarkName = "WordService"
-            landmarkType = "3">
+            landmarkName = "parseWordDocument(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -608,8 +560,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "274"
             endingLineNumber = "274"
-            landmarkName = "WordService"
-            landmarkType = "3">
+            landmarkName = "parseWordDocument(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -624,8 +576,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "306"
             endingLineNumber = "306"
-            landmarkName = "WordService"
-            landmarkType = "3">
+            landmarkName = "parseWordDocument(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -656,7 +608,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "696"
             endingLineNumber = "696"
-            landmarkName = "similarScore(_:_:language:use_embedding:)"
+            landmarkName = "getSimilarSentences(query:sentences:offset:contextLength:language:minSimilarity:nTop:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -672,7 +624,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "520"
             endingLineNumber = "520"
-            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
+            landmarkName = "detectLanguage(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -688,7 +640,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "476"
             endingLineNumber = "476"
-            landmarkName = "detectLanguage(from:)"
+            landmarkName = "parser(_:foundCharacters:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -704,7 +656,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "510"
             endingLineNumber = "510"
-            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
+            landmarkName = "detectLanguage(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -720,7 +672,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "517"
             endingLineNumber = "517"
-            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
+            landmarkName = "detectLanguage(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -736,7 +688,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "509"
             endingLineNumber = "509"
-            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
+            landmarkName = "detectLanguage(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -752,7 +704,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "477"
             endingLineNumber = "477"
-            landmarkName = "detectLanguage(from:)"
+            landmarkName = "parser(_:foundCharacters:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -800,7 +752,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "545"
             endingLineNumber = "545"
-            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
+            landmarkName = "detectLanguage(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -816,7 +768,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "542"
             endingLineNumber = "542"
-            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
+            landmarkName = "detectLanguage(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -848,7 +800,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "592"
             endingLineNumber = "592"
-            landmarkName = "getSimilarSentences(query:sentences:offset:contextLength:language:minSimilarity:nTop:)"
+            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -864,7 +816,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "616"
             endingLineNumber = "616"
-            landmarkName = "getSimilarSentences(query:sentences:offset:contextLength:language:minSimilarity:nTop:)"
+            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -896,7 +848,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "639"
             endingLineNumber = "639"
-            landmarkName = "getSimilarSentences(query:sentences:offset:contextLength:language:minSimilarity:nTop:)"
+            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -912,7 +864,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "653"
             endingLineNumber = "653"
-            landmarkName = "getSimilarSentences(query:sentences:offset:contextLength:language:minSimilarity:nTop:)"
+            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -928,7 +880,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "598"
             endingLineNumber = "598"
-            landmarkName = "getSimilarSentences(query:sentences:offset:contextLength:language:minSimilarity:nTop:)"
+            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -976,7 +928,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "657"
             endingLineNumber = "657"
-            landmarkName = "getSimilarSentences(query:sentences:offset:contextLength:language:minSimilarity:nTop:)"
+            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1040,7 +992,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "627"
             endingLineNumber = "627"
-            landmarkName = "getSimilarSentences(query:sentences:offset:contextLength:language:minSimilarity:nTop:)"
+            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1056,7 +1008,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "767"
             endingLineNumber = "767"
-            landmarkName = "levenshteinDistance(_:_:)"
+            landmarkName = "wordBasedSimilarity(_:_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1072,7 +1024,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "536"
             endingLineNumber = "536"
-            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
+            landmarkName = "detectLanguage(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1088,7 +1040,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "539"
             endingLineNumber = "539"
-            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
+            landmarkName = "detectLanguage(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1104,7 +1056,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "537"
             endingLineNumber = "537"
-            landmarkName = "alignmentSubtitles(from:subtitles:progressCallback:)"
+            landmarkName = "detectLanguage(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1200,8 +1152,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "158"
             endingLineNumber = "158"
-            landmarkName = "loadSystemFonts()"
-            landmarkType = "7">
+            landmarkName = "VideoServiceSettingsView"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1216,8 +1168,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "156"
             endingLineNumber = "156"
-            landmarkName = "loadSystemFonts()"
-            landmarkType = "7">
+            landmarkName = "VideoServiceSettingsView"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1344,8 +1296,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "391"
             endingLineNumber = "391"
-            landmarkName = "performSearch()"
-            landmarkType = "7">
+            landmarkName = "SubtitleEditView"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -1648,7 +1600,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "431"
             endingLineNumber = "431"
-            landmarkName = "replaceInSubtitles()"
+            landmarkName = "handleDroppedFile(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1664,7 +1616,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "441"
             endingLineNumber = "441"
-            landmarkName = "replaceInSubtitles()"
+            landmarkName = "handleDroppedFile(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1680,7 +1632,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "444"
             endingLineNumber = "444"
-            landmarkName = "replaceInSubtitles()"
+            landmarkName = "handleDroppedFile(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1696,7 +1648,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "449"
             endingLineNumber = "449"
-            landmarkName = "replaceInSubtitles()"
+            landmarkName = "checkEditedSubtitleCount()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1742,8 +1694,8 @@
             filePath = "AutoSRT/ViewModels/SubtitleViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "471"
-            endingLineNumber = "471"
+            startingLineNumber = "383"
+            endingLineNumber = "383"
             landmarkName = "generateSubtitles(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1847,38 +1799,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7F696BF6-9AB9-4904-8698-EBA4BF6BEF75"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AutoSRT/Services/WhisperService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "275"
-            endingLineNumber = "275"
-            landmarkName = "transcribeAudioWithC(audioFile:language:progressCallback:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "511B3BB9-C98E-49BF-B992-906647CE8FD2"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AutoSRT/Services/WhisperService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "302"
-            endingLineNumber = "302"
-            landmarkName = "transcribeAudioWithC(audioFile:language:progressCallback:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "60CEE3F3-5A39-4FE7-8E23-4E0D9C203C15"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -1886,41 +1806,9 @@
             filePath = "AutoSRT/Services/WhisperService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "258"
-            endingLineNumber = "258"
-            landmarkName = "transcribeAudioWithC(audioFile:language:progressCallback:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "BD6B917C-175D-46CC-8FBE-071C3CA7DB3A"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AutoSRT/Services/WhisperService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "290"
-            endingLineNumber = "290"
-            landmarkName = "transcribeAudioWithC(audioFile:language:progressCallback:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "002E56D8-2BD0-4D9A-B849-11993B8E8EBC"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AutoSRT/Services/WhisperService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "308"
-            endingLineNumber = "308"
-            landmarkName = "transcribeAudioWithC(audioFile:language:progressCallback:)"
+            startingLineNumber = "257"
+            endingLineNumber = "257"
+            landmarkName = "transcribeAudio(audioFile:language:progressCallback:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1934,8 +1822,8 @@
             filePath = "AutoSRT/Services/WhisperService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "168"
-            endingLineNumber = "168"
+            startingLineNumber = "167"
+            endingLineNumber = "167"
             landmarkName = "transcribeAudio(audioFile:language:progressCallback:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1950,9 +1838,9 @@
             filePath = "AutoSRT/Services/WhisperService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "110"
-            endingLineNumber = "110"
-            landmarkName = "transcribeAudio(audioFile:language:progressCallback:)"
+            startingLineNumber = "109"
+            endingLineNumber = "109"
+            landmarkName = "initializeModel(progressHandler:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2014,9 +1902,9 @@
             filePath = "AutoSRT/ViewModels/SubtitleViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1159"
-            endingLineNumber = "1159"
-            landmarkName = "exportAudio()"
+            startingLineNumber = "1071"
+            endingLineNumber = "1071"
+            landmarkName = "exportVideo()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2030,9 +1918,9 @@
             filePath = "AutoSRT/ViewModels/SubtitleViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1160"
-            endingLineNumber = "1160"
-            landmarkName = "exportAudio()"
+            startingLineNumber = "1072"
+            endingLineNumber = "1072"
+            landmarkName = "exportVideo()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2046,9 +1934,9 @@
             filePath = "AutoSRT/Services/WhisperService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "135"
-            endingLineNumber = "135"
-            landmarkName = "transcribeAudio(audioFile:language:progressCallback:)"
+            startingLineNumber = "134"
+            endingLineNumber = "134"
+            landmarkName = "initializeModel(progressHandler:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2062,8 +1950,8 @@
             filePath = "AutoSRT/Services/WhisperService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "143"
-            endingLineNumber = "143"
+            startingLineNumber = "142"
+            endingLineNumber = "142"
             landmarkName = "transcribeAudio(audioFile:language:progressCallback:)"
             landmarkType = "7">
          </BreakpointContent>

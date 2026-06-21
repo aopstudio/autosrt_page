@@ -116,9 +116,19 @@ class SubtitleViewModel: ObservableObject {
     @Published var playerTime: Double = 0
     @Published var currentSubtitleIndex = -1
     private var timeObserverToken: Any?
+    private var generationTask: Task<Void, Never>?
 
     init() {
         restoreState()
+    }
+
+    /// Stop the currently running subtitle generation (transcription + translation).
+    func stopGeneration() {
+        logger.log("User requested stop of subtitle generation")
+        generationTask?.cancel()
+        generationTask = nil
+        isProcessing = false
+        statusMessage = "Generation cancelled"
     }
 
     private func restoreState() {
@@ -256,20 +266,6 @@ class SubtitleViewModel: ObservableObject {
                     self.isProcessing = true
                 }
                 analytics.trackEvent(.appLaunched)
-                await checkOllamaService()
-
-                // initial EmbeddingService
-                Task { @MainActor() in
-                    self.isProcessing = true
-                }
-                try await EmbeddingService.shared.initializeModel { downloadProgress in
-                    Task { @MainActor in
-                        self.progress = downloadProgress.progress
-                        self.statusMessage =
-                            "Start downloading \(downloadProgress.modelName): \(String(format: "%.2f", downloadProgress.progress * 100))%, \(self.formatBytes(downloadProgress.bytesDownloaded))/\(self.formatBytes(downloadProgress.totalBytes))..."
-                    }
-
-                }
 
                 // initial WhisperService
                 Task { @MainActor() in
@@ -278,10 +274,12 @@ class SubtitleViewModel: ObservableObject {
                 try await WhisperService.shared.initializeModel { downloadProgress in
                     Task { @MainActor in
                         self.progress = downloadProgress.progress
-                        self.statusMessage =
-                            "Start downloading \(downloadProgress.modelName): \(String(format: "%.2f", downloadProgress.progress * 100))%, \(self.formatBytes(downloadProgress.bytesDownloaded))/\(self.formatBytes(downloadProgress.totalBytes))..."
+                        var message = "Downloading \(downloadProgress.modelName): \(String(format: "%.1f", downloadProgress.progress * 100))%, \(self.formatBytes(downloadProgress.bytesDownloaded))/\(self.formatBytes(downloadProgress.totalBytes))"
+                        if let eta = downloadProgress.estimatedTimeRemaining, eta.isFinite, eta > 0 {
+                            message += ", \(self.formatETA(eta)) left"
+                        }
+                        self.statusMessage = message
                     }
-
                 }
 
             } catch {
@@ -315,93 +313,6 @@ class SubtitleViewModel: ObservableObject {
         }
     }
 
-    public func checkOllamaService() async {
-        if await OllamaService.shared.checkAvailability() {
-            await MainActor.run {
-                statusMessage = "Found Ollama service. Detecting models..."
-            }
-
-            do {
-                var models = try await OllamaService.shared.listModels()
-
-                // Check if default model already exists
-                if models.contains(where: {
-                    $0.name.starts(with: Settings.shared.llmService.chatModel)
-                }) {
-                    logger.log("Default model \(Settings.shared.llmService.chatModel) found")
-
-                    await MainActor.run {
-                        statusMessage =
-                            "Found ollama service for translation. \( Settings.shared.llmService.chatModel) detected."
-                        isProcessing = false
-                    }
-
-                } else {
-                    // If model doesn't exist, pull it
-                    logger.log(
-                        "Default model not found, pulling \( Settings.shared.llmService.chatModel)"
-                    )
-
-                    await MainActor.run {
-                        isProcessing = true
-                        progress = 0.0
-                        statusMessage =
-                            "Downloading model \( Settings.shared.llmService.chatModel)..."
-                    }
-
-                    try await OllamaService.shared.pullModel(
-                        name: Settings.shared.llmService.chatModel
-                    ) { info in
-                        let percentage =
-                            info.total > 0 ? Double(info.completed) / Double(info.total) : 0
-
-                        Task { @MainActor in
-                            self.statusMessage =
-                                "Downloading model \( Settings.shared.llmService.chatModel): \(info.status)..."
-                            self.progress = percentage
-                        }
-                    }
-                    await MainActor.run {
-                        statusMessage =
-                            "Found Ollama service for translation. \( Settings.shared.llmService.chatModel) pulled."
-                        isProcessing = false
-                    }
-                }
-
-                // auto select model
-                models = try await OllamaService.shared.listModels()
-
-                await MainActor.run {
-                    availableModels = models.map { $0.name }.sorted()
-                    logger.log("Available models: \(availableModels)")
-
-                    // Select llama if none selected
-                    let prefix = Settings.shared.llmService.chatModel.split(separator: ":")[0]
-                    if selectedModel.isEmpty,
-                        let firstModel = availableModels.first(where: { $0.hasPrefix(prefix) })
-                    {
-                        logger.log("Auto-selected model: \(firstModel)")
-                    } else if selectedModel.isEmpty, let firstModel = availableModels.first {
-                        logger.log("Auto-selected model: \(firstModel)")
-                    }
-                }
-
-            } catch {
-                logger.log(
-                    "Failed to list or pull models: \(error.localizedDescription)", level: .error)
-                await MainActor.run {
-                    statusMessage = "Failed to initialize models: \(error.localizedDescription)"
-                    isProcessing = false
-                }
-            }
-        } else {
-            await MainActor.run {
-                errorMessage = "No Ollama service found, will skip translation"
-                isProcessing = false
-            }
-        }
-    }
-
     private func cleanupPlayer() {
         // Remove time observer before cleaning up player
         removePeriodicTimeObserver()
@@ -415,132 +326,154 @@ class SubtitleViewModel: ObservableObject {
         }
     }
 
-    func generateSubtitles(_ url: URL) async {
+    func generateSubtitles(_ url: URL) {
         logger.log("Starting video processing: \(url.lastPathComponent)")
         let startTime = Date()
 
-        analytics.trackEvent(
-            .generateSubtitleStarted,
-            parameters: [
-                "filename": url.lastPathComponent,
-                "quality": selectedQuality.rawValue,
-                "language": targetLanguage.rawValue,
-            ])
+        // Cancel any previous in-flight generation
+        generationTask?.cancel()
+        generationTask = Task { [weak self] in
+            guard let self = self else { return }
 
-        do {
-            isProcessing = true
-            errorMessage = nil
-            progress = 0
-            statusMessage = "Processing video..."
-            selectedModel = settings.llmService.chatModel
-
-            // Extract audio from video
-            statusMessage = "Extracting audio..."
-            let tempWavURL = url.deletingLastPathComponent().appendingPathComponent("audio.wav")
-            try await whisperService.extractAudio(from: url, to: tempWavURL)
-
-            // Transcribe audio
-            statusMessage = "Transcribing audio..."
-            progress = 0.5
-            self.subtitles = try await whisperService.transcribe(
-                audioFile: tempWavURL, sourceLanguage: sourceLanguage,
-                targetLanguage: targetLanguage
-            ) { [weak self] output, sub_progress in
-                Task { @MainActor in
-                    guard let self = self else { return }
-                    self.statusMessage = output
-                    self.progress = 0.5 + 0.5 * sub_progress
-                }
-            }
-            self.editingSubtitles = self.subtitles
-            updateSubtitleStatistics()
-            persistState()
-
-            // Save subtitles to srt file
-            try? saveSubtitles(videoURL: url, format: .srt)
-
-            // remove exist video output file
-            let outputVideoURL = getVideoOutputURL(videoURL: url)
-            try? FileManager.default.removeItem(at: outputVideoURL)
-
-            // Clean up temporary audio file
-            try? FileManager.default.removeItem(at: tempWavURL)
-
-            // Update completion status
-            let timeSpent = Date().timeIntervalSince(startTime)
-            let timeString = String(format: "%.1f seconds", timeSpent)
-
-            statusMessage = "Generate subtitles done (Time spent: \(timeString))"
-            isProcessing = false
-
-            // Track successful completion
-            analytics.trackEvent(
-                .generateSubtitleCompleted,
+            self.analytics.trackEvent(
+                .generateSubtitleStarted,
                 parameters: [
-                    "video_name": url.lastPathComponent,
-                    "quality": selectedQuality.presetName,
-                    "processing_time": timeSpent,
-                    "subtitle_count": subtitles.count,
+                    "filename": url.lastPathComponent,
+                    "quality": self.selectedQuality.rawValue,
+                    "language": self.targetLanguage.rawValue,
                 ])
 
-            // Show completion notification
-            let notification = NSUserNotification()
-            notification.title = "Subtitle Generated."
-            notification.subtitle = "Time spent: \(timeString)"
-            notification.informativeText = "Edit it or render Video."
-            notification.soundName = NSUserNotificationDefaultSoundName
-            notificationCenter.deliver(notification)
+            do {
+                self.isProcessing = true
+                self.errorMessage = nil
+                self.progress = 0
+                self.statusMessage = "Processing video..."
+                self.selectedModel = self.settings.llmService.chatModel
 
-        } catch WhisperServiceError.modelNotFound {
-            await MainActor.run {
-                errorMessage =
-                    "Whisper model not found. Please ensure the model file is in the correct location."
-                let timeSpent = Date().timeIntervalSince(startTime)
-                statusMessage =
-                    "Error: Model not found (Time: \(String(format: "%.1fs", timeSpent)))"
-                isProcessing = false
-            }
-            logger.log("Error: Whisper model not found", level: .error)
-            analytics.trackError(
-                WhisperServiceError.modelNotFound("Model file not found"),
-                context: "model_not_found")
+                // Check cancellation before starting
+                try Task.checkCancellation()
 
-        } catch WhisperServiceError.audioExtractionFailed(let reason) {
-            await MainActor.run {
-                errorMessage = "Failed to extract audio: \(reason)"
-                let timeSpent = Date().timeIntervalSince(startTime)
-                statusMessage =
-                    "Error: Audio extraction failed (Time: \(String(format: "%.1fs", timeSpent)))"
-                isProcessing = false
-            }
-            logger.log("Error: Audio extraction failed - \(reason)", level: .error)
-            analytics.trackError(
-                WhisperServiceError.audioExtractionFailed(reason),
-                context: "audio_extraction_failed")
+                // Extract audio from video
+                self.statusMessage = "Extracting audio..."
+                let tempWavURL = url.deletingLastPathComponent().appendingPathComponent("audio.wav")
+                try await self.whisperService.extractAudio(from: url, to: tempWavURL)
 
-        } catch WhisperServiceError.transcriptionFailed {
-            await MainActor.run {
-                errorMessage = "Failed to transcribe audio. Please try again."
-                let timeSpent = Date().timeIntervalSince(startTime)
-                statusMessage =
-                    "Error: Transcription failed (Time: \(String(format: "%.1fs", timeSpent)))"
-                isProcessing = false
-            }
-            logger.log("Error: Transcription failed", level: .error)
-            analytics.trackError(
-                WhisperServiceError.transcriptionFailed("Transcription failed"),
-                context: "transcription_failed")
+                // Check cancellation before transcription
+                try Task.checkCancellation()
 
-        } catch {
-            await MainActor.run {
-                self.errorMessage = error.localizedDescription
+                // Transcribe audio
+                self.statusMessage = "Transcribing audio..."
+                self.progress = 0.5
+                self.subtitles = try await self.whisperService.transcribe(
+                    audioFile: tempWavURL, sourceLanguage: self.sourceLanguage,
+                    targetLanguage: self.targetLanguage
+                ) { [weak self] output, sub_progress in
+                    Task { @MainActor in
+                        guard let self = self else { return }
+                        self.statusMessage = output
+                        self.progress = 0.5 + 0.5 * sub_progress
+                    }
+                }
+
+                // Check cancellation after transcription
+                try Task.checkCancellation()
+
+                self.editingSubtitles = self.subtitles
+                self.updateSubtitleStatistics()
+                self.persistState()
+
+                // Save subtitles to srt file
+                try? self.saveSubtitles(videoURL: url, format: .srt)
+
+                // remove exist video output file
+                let outputVideoURL = self.getVideoOutputURL(videoURL: url)
+                try? FileManager.default.removeItem(at: outputVideoURL)
+
+                // Clean up temporary audio file
+                try? FileManager.default.removeItem(at: tempWavURL)
+
+                // Update completion status
                 let timeSpent = Date().timeIntervalSince(startTime)
-                statusMessage =
-                    "Error: Unexpected error occurred (Time: \(String(format: "%.1fs", timeSpent)))"
-                isProcessing = false
+                let timeString = String(format: "%.1f seconds", timeSpent)
+
+                self.statusMessage = "Generate subtitles done (Time spent: \(timeString))"
+                self.isProcessing = false
+
+                // Track successful completion
+                self.analytics.trackEvent(
+                    .generateSubtitleCompleted,
+                    parameters: [
+                        "video_name": url.lastPathComponent,
+                        "quality": self.selectedQuality.presetName,
+                        "processing_time": timeSpent,
+                        "subtitle_count": self.subtitles.count,
+                    ])
+
+                // Show completion notification
+                let notification = NSUserNotification()
+                notification.title = "Subtitle Generated."
+                notification.subtitle = "Time spent: \(timeString)"
+                notification.informativeText = "Edit it or render Video."
+                notification.soundName = NSUserNotificationDefaultSoundName
+                self.notificationCenter.deliver(notification)
+            } catch is CancellationError {
+                await MainActor.run {
+                    self.isProcessing = false
+                    self.statusMessage = "Generation cancelled"
+                }
+                logger.log("Subtitle generation cancelled by user", level: .info)
+
+            } catch WhisperServiceError.modelNotFound {
+                await MainActor.run {
+                    self.errorMessage =
+                        "Whisper model not found. Please ensure the model file is in the correct location."
+                    let timeSpent = Date().timeIntervalSince(startTime)
+                    self.statusMessage =
+                        "Error: Model not found (Time: \(String(format: "%.1fs", timeSpent)))"
+                    self.isProcessing = false
+                }
+                logger.log("Error: Whisper model not found", level: .error)
+                self.analytics.trackError(
+                    WhisperServiceError.modelNotFound("Model file not found"),
+                    context: "model_not_found")
+
+            } catch WhisperServiceError.audioExtractionFailed(let reason) {
+                await MainActor.run {
+                    self.errorMessage = "Failed to extract audio: \(reason)"
+                    let timeSpent = Date().timeIntervalSince(startTime)
+                    self.statusMessage =
+                        "Error: Audio extraction failed (Time: \(String(format: "%.1fs", timeSpent)))"
+                    self.isProcessing = false
+                }
+                logger.log("Error: Audio extraction failed - \(reason)", level: .error)
+                self.analytics.trackError(
+                    WhisperServiceError.audioExtractionFailed(reason),
+                    context: "audio_extraction_failed")
+
+            } catch WhisperServiceError.transcriptionFailed {
+                await MainActor.run {
+                    self.errorMessage = "Failed to transcribe audio. Please try again."
+                    let timeSpent = Date().timeIntervalSince(startTime)
+                    self.statusMessage =
+                        "Error: Transcription failed (Time: \(String(format: "%.1fs", timeSpent)))"
+                    self.isProcessing = false
+                }
+                logger.log("Error: Transcription failed", level: .error)
+                self.analytics.trackError(
+                    WhisperServiceError.transcriptionFailed("Transcription failed"),
+                    context: "transcription_failed")
+
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    let timeSpent = Date().timeIntervalSince(startTime)
+                    self.statusMessage =
+                        "Error: Unexpected error occurred (Time: \(String(format: "%.1fs", timeSpent)))"
+                    self.isProcessing = false
+                }
+                logger.log("Unexpected error: \(error.localizedDescription)", level: .error)
+                self.analytics.trackError(error, context: "unexpected_error")
             }
-            logger.log("Unexpected error: \(error.localizedDescription)", level: .error)
-            analytics.trackError(error, context: "unexpected_error")
         }
     }
 
@@ -636,7 +569,7 @@ class SubtitleViewModel: ObservableObject {
             // Open output in Finder
             NSWorkspace.shared.selectFile(
                 videoOuputURL.path,
-                inFileViewerRootedAtPath: videoOuputURL.deletingLastPathComponent().path())
+                inFileViewerRootedAtPath: (videoOuputURL.deletingLastPathComponent() as NSURL).path!)
         } catch VideoError.compositionFailed(let reason) {
             await MainActor.run {
                 errorMessage = "Failed to compose video: \(reason)"
@@ -1277,6 +1210,21 @@ class SubtitleViewModel: ObservableObject {
             return String(format: "%.2f KB", kb)
         } else {
             return "\(bytes) bytes"
+        }
+    }
+
+    // Helper function to format ETA into human-readable format
+    private func formatETA(_ seconds: Double) -> String {
+        if seconds < 60 {
+            return String(format: "%.0fs", seconds)
+        } else if seconds < 3600 {
+            let minutes = Int(seconds / 60)
+            let remainingSeconds = Int(seconds.truncatingRemainder(dividingBy: 60))
+            return String(format: "%dm %ds", minutes, remainingSeconds)
+        } else {
+            let hours = Int(seconds / 3600)
+            let minutes = Int((seconds.truncatingRemainder(dividingBy: 3600)) / 60)
+            return String(format: "%dh %dm", hours, minutes)
         }
     }
 }

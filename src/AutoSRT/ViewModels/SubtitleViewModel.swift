@@ -1000,6 +1000,9 @@ class SubtitleViewModel: ObservableObject {
     }
 
     func showSubtitleEditor() {
+        // Sync editingSubtitles from subtitles so the editor always shows the latest data.
+        // Prevents stale persisted data from showing an incomplete list.
+        editingSubtitles = subtitles
         showingSubtitleEditor = true
     }
 
